@@ -1,12 +1,13 @@
 package com.revature.resproject.handlers;
 
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.revature.resproject.dtos.requests.NewUserRequest;
 import com.revature.resproject.models.User;
 import com.revature.resproject.services.TokenService;
 import com.revature.resproject.services.UserService;
-//import com.revature.resproject.utils.custom_exceptions.InvalidAuthException;
+import com.revature.resproject.utils.custom_exceptions.InvalidAuthException;
 //import com.revature.resproject.utils.custom_exceptions.InvalidUserException;
 import com.revature.resproject.utils.custom_exceptions.InvalidUserException;
 import io.javalin.http.Context;
@@ -42,8 +43,16 @@ import java.util.List;
         }
 
     public void getAllUsers(Context ctx) {
-        List<User> users = userService.getAllUsers();
-        ctx.json(users);
+       try {
+           String token = ctx.req.getHeader("authorization");
+           if (token == null || token.isEmpty()) throw new InvalidAuthException("You are not signed in");
+           logger.info(token);
+           List<User> users = userService.getAllUsers();
+           ctx.json(users);
+       } catch (InvalidAuthException e) {
+           ctx.status(401);
+           ctx.json(e);
+       }
     }
 }
 
