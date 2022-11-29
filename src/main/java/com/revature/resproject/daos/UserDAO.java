@@ -19,7 +19,7 @@ public class UserDAO implements CrudDAO<User> {
     public void save(User obj) {
         try (Connection con = ConnectionFactory.getInstance().getConnection()) {
             /* always start with the PrepareStatement */
-            PreparedStatement ps = con.prepareStatement("INSERT INTO users (userid, username, email, userpassword, givenname, surname, isActive, roleid) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+            PreparedStatement ps = con.prepareStatement("INSERT INTO user_t (userid, username, email, userpassword, givenname, surname, isActive, roleid) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
             ps.setInt(1, obj.getId());
             ps.setString(2, obj.getUsername());
             ps.setString(3, obj.getEmail());
@@ -61,7 +61,7 @@ public class UserDAO implements CrudDAO<User> {
         List<String> usernames = new ArrayList<>();
 
         try (Connection con = ConnectionFactory.getInstance().getConnection()) {
-            PreparedStatement ps = con.prepareStatement("SELECT (username) from users");
+            PreparedStatement ps = con.prepareStatement("SELECT (username) from user_t");
             ResultSet rs = ps.executeQuery();
 
             while (rs.next()) {
