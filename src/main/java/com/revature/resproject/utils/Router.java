@@ -2,6 +2,7 @@ package com.revature.resproject.utils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.revature.resproject.daos.UserDAO;
+import com.revature.resproject.handlers.AuthHandler;
 import com.revature.resproject.handlers.UserHandler;
 import com.revature.resproject.services.TokenService;
 import com.revature.resproject.services.UserService;
@@ -21,7 +22,7 @@ public class Router {
         UserHandler userHandler = new UserHandler(userService, mapper);
 
         /* auth */
-    //    AuthHandler authHandler = new AuthHandler(userService, tokenService, mapper);
+        AuthHandler authHandler = new AuthHandler(userService, mapper);
 
         /* handler groups */
         /* routes -> handler -> service -> dao */
@@ -31,6 +32,11 @@ public class Router {
                // get(c -> c.result("Hey!!!"));
                 post(c -> userHandler.signup(c));
             });
+            /* auth */
+            path("/auth", () -> {
+                post(authHandler::authenticateUser);
+            });
+
 
         });
     }
