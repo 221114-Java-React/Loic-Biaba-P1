@@ -1,4 +1,4 @@
-package com;
+package com.revature.resproject;
 
 import com.revature.resproject.utils.ConnectionFactory;
 import com.revature.resproject.utils.Router;

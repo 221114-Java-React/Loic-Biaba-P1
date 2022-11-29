@@ -13,16 +13,16 @@ import static io.javalin.apibuilder.ApiBuilder.*;
 public class Router {
     public static void router(Javalin app) {
         ObjectMapper mapper = new ObjectMapper();
-        //JwtConfig jwtConfig = new JwtConfig();
-        //TokenService tokenService = new TokenService(jwtConfig);
+        JwtConfig jwtConfig = new JwtConfig();
+        TokenService tokenService = new TokenService(jwtConfig);
 
         /* User */
         UserDAO userDAO = new UserDAO();
         UserService userService = new UserService(userDAO);
-        UserHandler userHandler = new UserHandler(userService, mapper);
+        UserHandler userHandler = new UserHandler(userService, tokenService, mapper);
 
         /* auth */
-        AuthHandler authHandler = new AuthHandler(userService, mapper);
+        AuthHandler authHandler = new AuthHandler(userService, tokenService, mapper);
 
         /* handler groups */
         /* routes -> handler -> service -> dao */
