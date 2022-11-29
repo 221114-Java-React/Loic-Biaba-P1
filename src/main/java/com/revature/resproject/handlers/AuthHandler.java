@@ -2,6 +2,7 @@ package com.revature.resproject.handlers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.revature.resproject.dtos.requests.NewLoginRequest;
+import com.revature.resproject.dtos.responses.Principal;
 import com.revature.resproject.models.User;
 import com.revature.resproject.services.UserService;
 import com.revature.resproject.utils.custom_exceptions.InvalidAuthException;
@@ -25,7 +26,7 @@ public class AuthHandler {
         NewLoginRequest req = mapper.readValue(ctx.req.getInputStream(), NewLoginRequest.class);
         logger.info("Attempting to login...");
         try {
-            userService.login(req);
+           Principal principal =  userService.login(req);
         } catch (InvalidAuthException e) {
             ctx.status(401);
             ctx.json(e);
