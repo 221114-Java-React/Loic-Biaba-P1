@@ -40,7 +40,9 @@ public class UserService {
         if (validUser == null) throw new InvalidAuthException("Invalid username or password");
         return new Principal(validUser.getId(), validUser.getUsername(), validUser.getRole());
     }
-
+    public List<User> getAllUsers() {
+        return userDAO.findAll();
+    }
     /* helper functions */
     private boolean isValidUsername(String username) {
         return username.matches("^(?=[a-zA-Z0-9._]{8,20}$)(?!.*[_.]{2})[^_.].*[^_.]$");

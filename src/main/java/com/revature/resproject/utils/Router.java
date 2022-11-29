@@ -29,7 +29,7 @@ public class Router {
         app.routes(() -> {
             /* user */
             path("/users", () -> {
-               // get(c -> c.result("Hey!!!"));
+                get(userHandler::getAllUsers);
                 post(c -> userHandler.signup(c));
             });
             /* auth */

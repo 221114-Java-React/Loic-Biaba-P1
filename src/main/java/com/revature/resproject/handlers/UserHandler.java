@@ -14,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.List;
 
 /* purpose of this UserHandler class is to handle http verbs and endpoints */
     /* hierarchy dependency injection -> userhandler -> userservice -> userdao */
@@ -40,5 +41,9 @@ import java.io.IOException;
             }
         }
 
+    public void getAllUsers(Context ctx) {
+        List<User> users = userService.getAllUsers();
+        ctx.json(users);
     }
+}
 
