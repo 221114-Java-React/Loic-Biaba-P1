@@ -89,5 +89,25 @@ public class UserDAO implements CrudDAO<User> {
 
         return usernames;
     }
+    public User getUserByUsernameAndPassword(String username, String password) {
+        User user = null;
+        Role task[] = Role.values();
+
+        try (Connection con = ConnectionFactory.getInstance().getConnection()) {
+            PreparedStatement ps = con.prepareStatement("SELECT * FROM user_t WHERE username = ? AND userpassword = ?");
+            ps.setString(1, username);
+            ps.setString(2, password);
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                user = new User(rs.getInt("userid"), rs.getString("username"), rs.getString("email"), rs.getString("userpassword"),
+                        rs.getString("givenname"), rs.getString("surname"), rs.getBoolean("isactive"), task[rs.getInt("roleid")]);
+
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return user;
+    }
 
 }

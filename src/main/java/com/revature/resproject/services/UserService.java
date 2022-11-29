@@ -7,6 +7,7 @@ import com.revature.resproject.dtos.responses.Principal;
 import com.revature.resproject.models.Role;
 import com.revature.resproject.models.User;
 import com.revature.resproject.utils.Sequence;
+import com.revature.resproject.utils.custom_exceptions.InvalidAuthException;
 import com.revature.resproject.utils.custom_exceptions.InvalidUserException;
 
 
@@ -32,6 +33,12 @@ public class UserService {
         User createdUser = new User(Sequence.nextValue(), req.getUsername(), req.getEmail(), req.getPassword1(), req.getUsername(), req.getSurname(), Boolean.FALSE, Role.DEFAULT);
         System.out.println(createdUser.toString());
         userDAO.save(createdUser);
+    }
+
+    public void login(NewLoginRequest req) throws InvalidUserException {
+        User validUser = userDAO.getUserByUsernameAndPassword(req.getUsername(), req.getPassword());
+
+        if (validUser == null) throw new InvalidAuthException("Invalid username or password");
     }
 
     /* helper functions */

@@ -4,6 +4,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.revature.resproject.dtos.requests.NewLoginRequest;
 import com.revature.resproject.models.User;
 import com.revature.resproject.services.UserService;
+import com.revature.resproject.utils.custom_exceptions.InvalidAuthException;
+import com.revature.resproject.utils.custom_exceptions.InvalidUserException;
 import io.javalin.http.Context;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,6 +23,12 @@ public class AuthHandler {
     }
     public void authenticateUser(Context ctx) throws IOException {
         NewLoginRequest req = mapper.readValue(ctx.req.getInputStream(), NewLoginRequest.class);
-        logger.info(req.toString());
+        logger.info("Attempting to login...");
+        try {
+            userService.login(req);
+        } catch (InvalidAuthException e) {
+            ctx.status(401);
+            ctx.json(e);
+        }
     }
 }
