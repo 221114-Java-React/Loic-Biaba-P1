@@ -20,5 +20,6 @@ import java.util.List;
     /* purpose of this UserHandler class is to handle http verbs and endpoints */
     /* hierarchy dependency injection -> userhandler -> userservice -> userdao */
     public class UserHandler {
+        
     }
 
