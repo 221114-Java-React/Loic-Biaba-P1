@@ -22,17 +22,12 @@ public class UserService {
     public UserService(UserDAO userDAO) {
         this.userDAO = userDAO;
     }
-    public void saveUser(NewUserRequest req) {
-        List<String> usernames = userDAO.findAllUsernames();
-
-        if (!isValidUsername(req.getUsername())) throw new InvalidUserException("Username needs to be 8-20 characters long");
-        if (usernames.contains(req.getUsername())) throw new InvalidUserException("Username is already taken :(");
-        if (!isValidPassword(req.getPassword1())) throw new InvalidUserException("Password needs to be minimum eight characters, at least one letter and one number");
-        if (!req.getPassword1().equals(req.getPassword2())) throw new InvalidUserException("Passwords do not match :(");
-
+    public User signup(NewUserRequest req) {
         User createdUser = new User(Sequence.nextValue(), req.getUsername(), req.getEmail(), req.getPassword1(), req.getGivenName(), req.getSurname(), Boolean.FALSE, Role.DEFAULT);
-        System.out.println(createdUser.toString());
+       // System.out.println(createdUser.toString());
         userDAO.save(createdUser);
+
+        return createdUser;
     }
 
     public Principal login(NewLoginRequest req) throws InvalidUserException {
@@ -47,11 +42,17 @@ public class UserService {
         return userDAO.getAllUsersByUsername(username);
     }
     /* helper functions */
-    private boolean isValidUsername(String username) {
+    public boolean isValidUsername(String username) {
         return username.matches("^(?=[a-zA-Z0-9._]{8,20}$)(?!.*[_.]{2})[^_.].*[^_.]$");
     }
-
-    private boolean isValidPassword(String password) {
+    public boolean isDuplicateUsername(String username) {
+        List<String> usernames = userDAO.findAllUsernames();
+        return usernames.contains(username);
+    }
+    public boolean isValidPassword(String password) {
         return password.matches("^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d]{8,}$");
+    }
+    public boolean isSamePassword(String password1, String password2) {
+        return password1.equals(password2);
     }
 }

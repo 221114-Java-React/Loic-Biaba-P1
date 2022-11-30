@@ -10,7 +10,6 @@ import com.revature.resproject.models.User;
 import com.revature.resproject.services.TokenService;
 import com.revature.resproject.services.UserService;
 import com.revature.resproject.utils.custom_exceptions.InvalidAuthException;
-//import com.revature.resproject.utils.custom_exceptions.InvalidUserException;
 import com.revature.resproject.utils.custom_exceptions.InvalidUserException;
 import io.javalin.http.Context;
 import org.slf4j.Logger;
@@ -33,14 +32,29 @@ import java.util.List;
             this.mapper = mapper;
         }
 
-        public void signup(Context c) throws IOException {
-            NewUserRequest req = mapper.readValue(c.req.getInputStream(), NewUserRequest.class);
+        public void signup(Context ctx) throws IOException {
+            NewUserRequest req = mapper.readValue(ctx.req.getInputStream(), NewUserRequest.class);
             try {
-                userService.saveUser(req);
-                c.status(201); // CREATED
+                logger.info("Attempting tosignup...");
+                User createdUser = null;
+
+                if (userService.isValidUsername(req.getUsername())) {
+                    if (!userService.isDuplicateUsername(req.getUsername())) {
+                        if (userService.isValidPassword(req.getPassword1())) {
+                            if (userService.isSamePassword(req.getPassword1(), req.getPassword2())) {
+                                createdUser = userService.signup(req);
+                            } else throw new InvalidUserException("Passwords does not match");
+                        } else throw new InvalidUserException("Password needs to be minimum eight characters, at least one letter and one number");
+                    } else throw new InvalidUserException("Username is already taken");
+                } else throw new InvalidUserException("Username needs to be 8 - 20 characters long");
+
+                ctx.status(201); // CREATED
+                ctx.json(createdUser);
+                logger.info("Signup Attempt successful...");
             } catch (InvalidUserException e) {
-                c.status(403); // FORBIDDEN
-                c.json(e);
+                ctx.status(403); // FORBIDDEN
+                ctx.json(e);
+                logger.info("Signup attempt unsuccessful ...");
             }
         }
 
