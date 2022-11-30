@@ -2,15 +2,19 @@ package com.revature.resproject.services;
 
 import com.revature.resproject.dtos.responses.Principal;
 import com.revature.resproject.models.Role;
+import com.revature.resproject.models.User;
 import com.revature.resproject.utils.JwtConfig;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtBuilder;
 import io.jsonwebtoken.Jwts;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Date;
 
 public class TokenService {
     private JwtConfig jwtConfig;
+    private final static Logger logger = LoggerFactory.getLogger(User.class);
 
     public TokenService() {
         super();
@@ -40,7 +44,9 @@ public class TokenService {
                     .setSigningKey(jwtConfig.getSigningKey())
                     .parseClaimsJws(token)
                     .getBody();
+
             return new Principal(Integer.parseInt(claims.getId()), claims.getSubject(), Role.valueOf(claims.get("role", String.class)));
+
         } catch (NumberFormatException e) {
             e.printStackTrace();
             return null;
@@ -48,4 +54,29 @@ public class TokenService {
             return null;
         }
     }
+    /*
+    public String extractDetails(String token) {
+        try {
+            Claims claims = Jwts.parser()
+                    .setSigningKey(jwtConfig.getSigningKey())
+                    .parseClaimsJws(token)
+                    .getBody();
+
+            if (claims == null || claims.isEmpty()) {
+                return "It is Null!!!";
+            }
+                return "Everything is fine";
+           // logger.info("Principal" + Integer.parseInt(claims.getId()));
+            //return new Principal(Integer.parseInt(claims.getId()), claims.getSubject(), Role.valueOf(claims.get("role", String.class)));
+               // return claims.getSubject();
+        } catch (NumberFormatException e) {
+            e.printStackTrace();
+            logger.info("Not able to convert to int");
+            return "Number not found";
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "Exception Caught here!";
+        }
+    }
+     */
 }

@@ -30,7 +30,7 @@ public class UserService {
         if (!isValidPassword(req.getPassword1())) throw new InvalidUserException("Password needs to be minimum eight characters, at least one letter and one number");
         if (!req.getPassword1().equals(req.getPassword2())) throw new InvalidUserException("Passwords do not match :(");
 
-        User createdUser = new User(Sequence.nextValue(), req.getUsername(), req.getEmail(), req.getPassword1(), req.getUsername(), req.getSurname(), Boolean.FALSE, Role.DEFAULT);
+        User createdUser = new User(Sequence.nextValue(), req.getUsername(), req.getEmail(), req.getPassword1(), req.getGivenName(), req.getSurname(), Boolean.FALSE, Role.DEFAULT);
         System.out.println(createdUser.toString());
         userDAO.save(createdUser);
     }

@@ -4,6 +4,8 @@ package com.revature.resproject.handlers;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.revature.resproject.dtos.requests.NewUserRequest;
+import com.revature.resproject.dtos.responses.Principal;
+import com.revature.resproject.models.Role;
 import com.revature.resproject.models.User;
 import com.revature.resproject.services.TokenService;
 import com.revature.resproject.services.UserService;
@@ -46,11 +48,20 @@ import java.util.List;
        try {
            String token = ctx.req.getHeader("authorization");
            if (token == null || token.isEmpty()) throw new InvalidAuthException("You are not signed in");
-           logger.info(token);
+         //  logger.info(token);
+           Principal principal = tokenService.extractRequesterDetails(token);
+           if (principal == null) throw new InvalidAuthException("Invalid token");
+           if (!principal.getRole().equals(Role.ADMIN)) throw new InvalidAuthException("You are not authorized to do this");
+
+          // logger.info("Principal: " + principal.toString());
+          // logger.info("Principal: " + tokenService.extractDetails(token));
            List<User> users = userService.getAllUsers();
            ctx.json(users);
        } catch (InvalidAuthException e) {
            ctx.status(401);
+           ctx.json(e);
+       } catch (NullPointerException e) {
+           e.printStackTrace();
            ctx.json(e);
        }
     }
