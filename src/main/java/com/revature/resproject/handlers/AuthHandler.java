@@ -26,15 +26,15 @@ public class AuthHandler {
     }
     public void authenticateUser(Context ctx) throws IOException {
         NewLoginRequest req = mapper.readValue(ctx.req.getInputStream(), NewLoginRequest.class);
-        logger.info("Attempting to login...");
+       // logger.info("Attempting to login...");
         try {
            Principal principal =  userService.login(req);
            String token = tokenService.generateToken(principal);
             /* set the header with the auth token */
            ctx.res.setHeader("authorization", token);
            ctx.json(principal);
-            ctx.status(202); // ACCEPTED
-            logger.info("Login successful...");
+           ctx.status(202); // ACCEPTED
+         //   logger.info("Login successful...");
         } catch (InvalidAuthException e) {
             ctx.status(401);
             ctx.json(e);

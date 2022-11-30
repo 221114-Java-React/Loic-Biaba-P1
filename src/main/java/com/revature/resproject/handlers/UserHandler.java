@@ -31,11 +31,10 @@ import java.util.List;
             this.tokenService = tokenService;
             this.mapper = mapper;
         }
+    public void signup(Context ctx) throws IOException {
+        NewUserRequest req = mapper.readValue(ctx.req.getInputStream(), NewUserRequest.class);
 
-        public void signup(Context ctx) throws IOException {
-            NewUserRequest req = mapper.readValue(ctx.req.getInputStream(), NewUserRequest.class);
             try {
-                logger.info("Attempting to signup...");
                 User createdUser = null;
 
                 if (userService.isValidUsername(req.getUsername())) {
@@ -52,13 +51,14 @@ import java.util.List;
 
                 ctx.status(201); // CREATED
                 ctx.json(createdUser);
-                logger.info("Signup Attempt successful...");
+
             } catch (InvalidUserException e) {
                 ctx.status(403); // FORBIDDEN
                 ctx.json(e);
-                logger.info("Signup attempt unsuccessful ...");
+
             }
         }
+
 
     public void getAllUsers(Context ctx) {
        try {

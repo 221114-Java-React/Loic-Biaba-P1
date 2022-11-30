@@ -2,6 +2,7 @@ package com.revature.resproject.services;
 
 import com.revature.resproject.daos.UserDAO;
 import com.revature.resproject.dtos.requests.NewLoginRequest;
+import com.revature.resproject.dtos.requests.NewUpdateUserRequest;
 import com.revature.resproject.dtos.requests.NewUserRequest;
 import com.revature.resproject.dtos.responses.Principal;
 import com.revature.resproject.models.Role;
@@ -23,7 +24,7 @@ public class UserService {
         this.userDAO = userDAO;
     }
     public User signup(NewUserRequest req) {
-        User createdUser = new User(Sequence.nextValue(), req.getUsername(), req.getEmail(), req.getPassword1(), req.getGivenName(), req.getSurname(), Boolean.FALSE, Role.DEFAULT);
+        User createdUser = new User(Sequence.nextValue(), req.getUsername(), req.getEmail(), req.getPassword1(), req.getGivenName(), req.getSurname(), Boolean.TRUE, Role.DEFAULT);
        // System.out.println(createdUser.toString());
         userDAO.save(createdUser);
 
@@ -34,6 +35,12 @@ public class UserService {
         User validUser = userDAO.getUserByUsernameAndPassword(req.getUsername(), req.getPassword());
         if (validUser == null) throw new InvalidAuthException("Invalid username or password");
         return new Principal(validUser.getId(), validUser.getUsername(), validUser.getRole());
+    }
+    public User upgradeRole(NewUpdateUserRequest req) throws InvalidUserException {
+        User updatedUser = userDAO.updateUserRole(req.getUsername());
+        if (updatedUser == null) throw new InvalidUserException("Unable to update role");
+       return updatedUser;
+       // return new Principal(validUser.getId(), validUser.getUsername(), validUser.getRole());
     }
     public List<User> getAllUsers() {
         return userDAO.findAll();
