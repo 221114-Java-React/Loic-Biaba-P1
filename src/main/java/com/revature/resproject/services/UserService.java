@@ -49,6 +49,11 @@ public class UserService {
         List<String> usernames = userDAO.findAllUsernames();
         return usernames.contains(username);
     }
+
+    public boolean isDuplicateEmail(String email) {
+        List<String> emails = userDAO.findAllEmails();
+        return emails.contains(email);
+    }
     public boolean isValidPassword(String password) {
         return password.matches("^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d]{8,}$");
     }

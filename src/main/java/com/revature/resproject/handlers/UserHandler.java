@@ -35,16 +35,18 @@ import java.util.List;
         public void signup(Context ctx) throws IOException {
             NewUserRequest req = mapper.readValue(ctx.req.getInputStream(), NewUserRequest.class);
             try {
-                logger.info("Attempting tosignup...");
+                logger.info("Attempting to signup...");
                 User createdUser = null;
 
                 if (userService.isValidUsername(req.getUsername())) {
                     if (!userService.isDuplicateUsername(req.getUsername())) {
-                        if (userService.isValidPassword(req.getPassword1())) {
-                            if (userService.isSamePassword(req.getPassword1(), req.getPassword2())) {
+                        if (!userService.isDuplicateEmail(req.getEmail())) {
+                             if (userService.isValidPassword(req.getPassword1())) {
+                                  if (userService.isSamePassword(req.getPassword1(), req.getPassword2())) {
                                 createdUser = userService.signup(req);
-                            } else throw new InvalidUserException("Passwords does not match");
-                        } else throw new InvalidUserException("Password needs to be minimum eight characters, at least one letter and one number");
+                                    } else throw new InvalidUserException("Passwords does not match");
+                                } else throw new InvalidUserException("Password needs to be minimum eight characters, at least one letter and one number");
+                        } else throw new InvalidUserException("Email is already taken");
                     } else throw new InvalidUserException("Username is already taken");
                 } else throw new InvalidUserException("Username needs to be 8 - 20 characters long");
 
