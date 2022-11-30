@@ -65,5 +65,27 @@ import java.util.List;
            ctx.json(e);
        }
     }
+
+    public void getAllUsersByUsername(Context ctx) {
+
+        try {
+            String token = ctx.req.getHeader("authorization");
+            if (token == null || token.isEmpty()) throw new InvalidAuthException("You are not signed in");
+            //  logger.info(token);
+            Principal principal = tokenService.extractRequesterDetails(token);
+            if (principal == null) throw new InvalidAuthException("Invalid token");
+            if (!principal.getRole().equals(Role.ADMIN)) throw new InvalidAuthException("You are not authorized to do this");
+
+            String username = ctx.req.getParameter("username");
+            List<User> users = userService.getAllUsersByUsername(username);
+            ctx.json(users);
+        } catch (InvalidAuthException e) {
+            ctx.status(401);
+            ctx.json(e);
+        } catch (NullPointerException e) {
+            e.printStackTrace();
+            ctx.json(e);
+        }
+    }
 }
 

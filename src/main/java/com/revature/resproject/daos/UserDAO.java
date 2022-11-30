@@ -109,5 +109,23 @@ public class UserDAO implements CrudDAO<User> {
         }
         return user;
     }
+    public List<User> getAllUsersByUsername(String username) {
+        List<User> users = new ArrayList<User>();
+        Role task[] = Role.values();
 
+        try (Connection con = ConnectionFactory.getInstance().getConnection()) {
+            PreparedStatement ps = con.prepareStatement("SELECT * FROM user_t WHERE username LIKE ?");
+            ps.setString(1, username + "%");
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                User user = new User(rs.getInt("userid"), rs.getString("username"), rs.getString("email"), rs.getString("userpassword"),
+                        rs.getString("givenname"), rs.getString("surname"), rs.getBoolean("isactive"), task[rs.getInt("roleid")]);
+                users.add(user);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return users;
+    }
 }

@@ -30,6 +30,7 @@ public class Router {
             /* user */
             path("/users", () -> {
                 get(userHandler::getAllUsers);
+                get("/name", userHandler::getAllUsersByUsername);
                 post(c -> userHandler.signup(c));
             });
             /* auth */
