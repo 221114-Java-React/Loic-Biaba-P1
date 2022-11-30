@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.revature.resproject.dtos.requests.NewLoginRequest;
 import com.revature.resproject.dtos.requests.NewUpdateUserRequest;
 import com.revature.resproject.dtos.responses.Principal;
+import com.revature.resproject.models.Role;
 import com.revature.resproject.models.User;
 import com.revature.resproject.services.TokenService;
 import com.revature.resproject.services.UserService;
@@ -11,6 +12,7 @@ import com.revature.resproject.utils.custom_exceptions.InvalidUserException;
 import io.javalin.http.Context;
 
 import java.io.IOException;
+import java.util.List;
 
 public class UpdateHandler {
     private final UserService userService;
@@ -27,7 +29,13 @@ public class UpdateHandler {
         try {
             User updatedUser = null;
             if (userService.isDuplicateUsername(req.getUsername())) {
-                updatedUser =  userService.upgradeRole(req);
+                List<User> users = userService.getAllUsersByUsername(req.getUsername());
+                for (User candidate: users) {
+                    if (!candidate.getRole().equals(Role.ADMIN)) {
+                        updatedUser =  userService.upgradeRole(req);
+                    } else throw new InvalidUserException("Admin cannot be upgraded");
+                }
+             //   updatedUser =  userService.upgradeRole(req);
             } else throw new InvalidUserException("User doesn't exist");
             ctx.json(updatedUser);
             ctx.status(202); // ACCEPTED
