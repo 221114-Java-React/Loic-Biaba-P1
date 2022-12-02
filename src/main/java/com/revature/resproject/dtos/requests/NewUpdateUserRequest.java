@@ -22,7 +22,7 @@ public class NewUpdateUserRequest {
     @Override
     public String toString() {
         return "NewUpdateUserRequest{" +
-                "username='" + username + '\'' +
+                "Username='" + username + '\'' +
                 '}';
     }
 }

@@ -44,9 +44,9 @@ public class Principal {
         @Override
         public String toString() {
             return "Principal{" +
-                    "id='" + id + '\'' +
-                    ", username='" + username + '\'' +
-                    ", role=" + role +
+                    "Employee Id='" + id + '\'' +
+                    ", Username='" + username + '\'' +
+                    ", Role=" + role +
                     '}';
         }
 }

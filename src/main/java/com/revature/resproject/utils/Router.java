@@ -1,10 +1,13 @@
 package com.revature.resproject.utils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.revature.resproject.daos.ReimbursementDAO;
 import com.revature.resproject.daos.UserDAO;
 import com.revature.resproject.handlers.AuthHandler;
+import com.revature.resproject.handlers.ReimbursementHandler;
 import com.revature.resproject.handlers.UpdateHandler;
 import com.revature.resproject.handlers.UserHandler;
+import com.revature.resproject.services.ReimbursementService;
 import com.revature.resproject.services.TokenService;
 import com.revature.resproject.services.UserService;
 import io.javalin.Javalin;
@@ -25,26 +28,29 @@ public class Router {
 
         /* auth */
         AuthHandler authHandler = new AuthHandler(userService, tokenService, mapper);
-
+        /* tickets */
+        ReimbursementDAO reimbDAO = new ReimbursementDAO();
+        ReimbursementService reimbService = new ReimbursementService(reimbDAO);
+        ReimbursementHandler reimbursementHandler = new ReimbursementHandler(reimbService, tokenService, mapper);
         /* handler groups */
         /* routes -> handler -> service -> dao */
         app.routes(() -> {
-            /* user */
+            /* users */
             path("/users", () -> {
                 get(userHandler::getAllUsers);
                 get("/name", userHandler::getAllUsersByUsername);
                 post("/name", updateHandler::upgradeUser);
                 post(c -> userHandler.signup(c));
-
             });
             /* auth */
             path("/auth", () -> {
                 post(authHandler::authenticateUser);
             });
+            /* tickets */
+            path("/tickets", () -> {
 
-
+                post(reimbursementHandler::register);
         });
+      });
     }
-
-
 }

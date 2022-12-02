@@ -1,0 +1,62 @@
+package com.revature.resproject.handlers;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.revature.resproject.dtos.requests.NewReimbursementRequest;
+import com.revature.resproject.dtos.responses.Principal;
+import com.revature.resproject.models.Reimbursement;
+import com.revature.resproject.models.User;
+import com.revature.resproject.services.ReimbursementService;
+import com.revature.resproject.services.TokenService;
+import com.revature.resproject.services.UserService;
+import com.revature.resproject.utils.custom_exceptions.InvalidAuthException;
+import com.revature.resproject.utils.custom_exceptions.InvalidReimbException;
+import io.javalin.http.Context;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+
+public class ReimbursementHandler {
+    private final ReimbursementService reimbursementService;
+    private final TokenService tokenService;
+    private final ObjectMapper mapper;
+    private final static Logger logger = LoggerFactory.getLogger(User.class);
+
+    public ReimbursementHandler(ReimbursementService reimbursementService, TokenService tokenService, ObjectMapper mapper) {
+        this.reimbursementService = reimbursementService;
+        this.tokenService = tokenService;
+        this.mapper = mapper;
+    }
+
+    public void register(Context ctx) throws IOException {
+
+        NewReimbursementRequest req = mapper.readValue(ctx.req.getInputStream(), NewReimbursementRequest.class);
+
+        try {
+            String token = ctx.req.getHeader("authorization");
+            if (token == null || token.isEmpty()) throw new InvalidAuthException("You are not signed in");
+            //  logger.info(token);
+            Principal principal = tokenService.extractRequesterDetails(token);
+            if (principal == null) throw new InvalidAuthException("Invalid token");
+
+            Reimbursement ticket = null;
+
+            if(!reimbursementService.isEmpty(req.getAmount())) {
+                if(!reimbursementService.isEmpty(req.getDescription())) {
+                     reimbursementService.isNumeric(req.getAmount());
+                        ticket = reimbursementService.makeTicket(req, principal);
+                } else throw new InvalidReimbException("Please enter a description");
+            } else throw new InvalidReimbException("Please enter an amount");
+
+            ctx.status(201); // CREATED
+            ctx.json(ticket);
+        } catch (InvalidReimbException | InvalidAuthException e) {
+            ctx.status(403);
+            ctx.json(e);
+        }catch (NumberFormatException e) {
+            ctx.status(403);
+            ctx.result("Amount must be digits only");
+        }
+    }
+
+}

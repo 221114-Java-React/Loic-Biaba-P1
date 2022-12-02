@@ -33,7 +33,7 @@ public class NewLoginRequest {
         @Override
         public String toString() {
             return "NewLoginRequest{" +
-                    "username='" + username + '\'' +
+                    "Username='" + username + '\'' +
                     ", password='" + password + '\'' +
                     '}';
         }

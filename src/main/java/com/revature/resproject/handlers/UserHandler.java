@@ -33,16 +33,18 @@ import java.util.List;
         }
     public void signup(Context ctx) throws IOException {
 
-        String token = ctx.req.getHeader("authorization");
-        if (token == null || token.isEmpty()) throw new InvalidAuthException("You are not signed in");
-        //  logger.info(token);
-        Principal principal = tokenService.extractRequesterDetails(token);
-        if (principal == null) throw new InvalidAuthException("Invalid token");
-        if (!principal.getRole().equals(Role.ADMIN)) throw new InvalidAuthException("You are not authorized to do this");
+
 
         NewUserRequest req = mapper.readValue(ctx.req.getInputStream(), NewUserRequest.class);
 
             try {
+                String token = ctx.req.getHeader("authorization");
+                if (token == null || token.isEmpty()) throw new InvalidAuthException("You are not signed in");
+                //  logger.info(token);
+                Principal principal = tokenService.extractRequesterDetails(token);
+                if (principal == null) throw new InvalidAuthException("Invalid token");
+                if (!principal.getRole().equals(Role.ADMIN)) throw new InvalidAuthException("You are not authorized to do this");
+
                 User createdUser = null;
 
                 if (userService.isValidUsername(req.getUsername())) {
@@ -60,7 +62,7 @@ import java.util.List;
                 ctx.status(201); // CREATED
                 ctx.json(createdUser);
 
-            } catch (InvalidUserException e) {
+            } catch (InvalidUserException | InvalidAuthException e) {
                 ctx.status(403); // FORBIDDEN
                 ctx.json(e);
 
