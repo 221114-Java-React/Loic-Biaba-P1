@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.revature.resproject.dtos.requests.NewReimbursementRequest;
 import com.revature.resproject.dtos.responses.Principal;
 import com.revature.resproject.models.Reimbursement;
+import com.revature.resproject.models.Role;
 import com.revature.resproject.models.User;
 import com.revature.resproject.services.ReimbursementService;
 import com.revature.resproject.services.TokenService;
@@ -15,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.List;
 
 public class ReimbursementHandler {
     private final ReimbursementService reimbursementService;
@@ -56,6 +58,26 @@ public class ReimbursementHandler {
         }catch (NumberFormatException e) {
             ctx.status(403);
             ctx.result("Amount must be digits only");
+        }
+    }
+    public void getAllTickets(Context ctx) {
+        try {
+            String token = ctx.req.getHeader("authorization");
+            if (token == null || token.isEmpty()) throw new InvalidAuthException("You are not signed in");
+            Principal principal = tokenService.extractRequesterDetails(token);
+            if (principal == null) throw new InvalidAuthException("Invalid token");
+            if (!principal.getRole().equals(Role.ADMIN)) throw new InvalidAuthException("You are not authorized to do this");
+
+            // logger.info("Principal: " + principal.toString());
+            // logger.info("Principal: " + tokenService.extractDetails(token));
+            List<Reimbursement> tickets = reimbursementService.getAllTickets();
+            ctx.json(tickets);
+        } catch (InvalidAuthException e) {
+            ctx.status(401);
+            ctx.json(e);
+        } catch (NullPointerException e) {
+            e.printStackTrace();
+            ctx.json(e);
         }
     }
 

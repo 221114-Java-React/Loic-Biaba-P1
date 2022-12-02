@@ -9,6 +9,7 @@ import com.revature.resproject.utils.Sequence;
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.Locale;
 
 import org.slf4j.Logger;
@@ -55,5 +56,9 @@ public class ReimbursementService {
          }
         return createdTicket;
 
+    }
+
+    public List<Reimbursement> getAllTickets() {
+            return reimbDAO.findAll();
     }
 }

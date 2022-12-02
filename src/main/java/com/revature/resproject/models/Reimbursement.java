@@ -96,7 +96,7 @@ public class Reimbursement {
         this.description = description;
     }
 
-    public byte[] getReceipt() throws IOException {
+    public byte[] showReceipt() throws IOException {
         byte[] image;
 
         if (receipt == null || receipt.equals("")) {
@@ -106,6 +106,10 @@ public class Reimbursement {
 
         image = Files.readAllBytes(Paths.get(receipt));
         return image;
+    }
+
+    public String getReceipt() {
+        return receipt;
     }
 
     public void setReceipt(String receipt) {

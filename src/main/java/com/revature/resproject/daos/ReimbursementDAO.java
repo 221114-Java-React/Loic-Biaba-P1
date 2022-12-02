@@ -1,13 +1,15 @@
 package com.revature.resproject.daos;
 
-import com.revature.resproject.models.Reimbursement;
+import com.revature.resproject.models.*;
 import com.revature.resproject.utils.ConnectionFactory;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class ReimbursementDAO implements CrudDAO<Reimbursement>{
@@ -21,7 +23,7 @@ public class ReimbursementDAO implements CrudDAO<Reimbursement>{
             ps.setTimestamp(3, obj.resolveSubDate());
             ps.setTimestamp(4, obj.resolveResDate());
             ps.setString(5, obj.getDescription());
-            ps.setBytes(6, obj.getReceipt());
+            ps.setBytes(6, obj.showReceipt());
             ps.setInt(7, obj.getPaymentId());
             ps.setInt(8, obj.getAuthorId());
             ps.setInt(9, obj.getResolverId());
@@ -57,6 +59,23 @@ public class ReimbursementDAO implements CrudDAO<Reimbursement>{
 
     @Override
     public List<Reimbursement> findAll() {
-        return null;
+        List<Reimbursement> tickets = new ArrayList<>();
+        Status status[] = Status.values();
+        Rtype rtype[] = Rtype.values();
+
+        try (Connection con = ConnectionFactory.getInstance().getConnection()) {
+            PreparedStatement ps = con.prepareStatement("SELECT * from reimbursement_t");
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                Reimbursement currentTicket = new Reimbursement(rs.getInt("reimbid"), rs.getDouble("amount"), rs.getTimestamp("submitted").toLocalDateTime(), rs.getTimestamp("resolved").toLocalDateTime(),
+                        rs.getString("description"), rs.getBytes("receipt").toString(), rs.getInt("paymentid"), rs.getInt("authorid"), rs.getInt("resolverid"), status[rs.getInt("statusid")], rtype[rs.getInt("typeid")]);
+                tickets.add(currentTicket);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return tickets;
     }
 }

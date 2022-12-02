@@ -48,7 +48,7 @@ public class Router {
             });
             /* tickets */
             path("/tickets", () -> {
-
+                get(reimbursementHandler::getAllTickets);
                 post(reimbursementHandler::register);
         });
       });
