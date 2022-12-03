@@ -23,7 +23,7 @@ public class Reimbursement {
     private Status status;
     private Rtype rtype;
 
-    private DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss", Locale.US);
+    private DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("MM/dd/yyyy 'at' hh:mm a ");
 
     public Reimbursement() {
         super();

@@ -1,6 +1,7 @@
 package com.revature.resproject.services;
 
 import com.revature.resproject.daos.ReimbursementDAO;
+import com.revature.resproject.dtos.requests.UpdateTicketRequest;
 import com.revature.resproject.dtos.responses.Principal;
 import com.revature.resproject.dtos.requests.NewReimbursementRequest;
 import com.revature.resproject.models.*;
@@ -9,9 +10,11 @@ import com.revature.resproject.utils.Sequence;
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+import com.revature.resproject.utils.custom_exceptions.InvalidReimbException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,11 +46,10 @@ public class ReimbursementService {
 
     public Reimbursement makeTicket(NewReimbursementRequest req, Principal principal) {
         Reimbursement createdTicket = null;
-        DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss", Locale.US);
-       // dateFormat.format(LocalDateTime.now())
+
         try {
              createdTicket = new Reimbursement(Sequence.nextIdValue(), Double.parseDouble(req.getAmount()), LocalDateTime.now(), LocalDateTime.of(2000, 02, 20, 00, 02), req.getDescription(),
-                     "", 1 + rand.nextInt(200), principal.getId(), 0, Status.PENDING, Rtype.OTHER);
+                     "", 1 + rand.nextInt(200), principal.getId(), 0, Status.PENDING, req.getType());
             logger.info(" " + createdTicket);
              reimbDAO.save(createdTicket);
          } catch (RuntimeException e) {
@@ -60,5 +62,37 @@ public class ReimbursementService {
 
     public List<Reimbursement> getAllTickets() {
             return reimbDAO.findAll();
+    }
+
+    public boolean isDuplicateId(int id) {
+        return false;
+    }
+
+    public List<Reimbursement> getAllTicketbyId(int id) {
+        List<Reimbursement> tickets = new ArrayList<>();
+        return tickets;
+    }
+
+    public Reimbursement processTicket(UpdateTicketRequest req) {
+        Reimbursement ticket = new Reimbursement();
+        return ticket;
+    }
+
+    public List<Reimbursement> getAllTicketByStatus(Status status) {
+
+        return reimbDAO.getAllTicketsbyStatus(status);
+    }
+    public Status showStatus(String status) {
+        String string = status.toLowerCase();
+        switch (string) {
+            case "pending":
+                return Status.PENDING;
+            case "approved":
+                return Status.APPROVED;
+            case "denied":
+                return Status.DENIED;
+            default:
+                throw new InvalidReimbException("Invalid Status. Please input a valid status");
+        }
     }
 }

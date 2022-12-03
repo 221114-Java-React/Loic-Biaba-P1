@@ -50,7 +50,9 @@ public class Router {
             path("/tickets", () -> {
                 get(reimbursementHandler::getAllTickets);
                 post(reimbursementHandler::register);
+                get("/status", reimbursementHandler::getAllTicketsByStatus);
         });
+
       });
     }
 }

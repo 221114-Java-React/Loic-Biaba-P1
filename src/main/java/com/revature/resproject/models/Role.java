@@ -6,4 +6,7 @@ public enum Role {
      Role(int i) {
           this.i = i;
      }
+     public int getvalue() {
+          return i;
+     }
 }

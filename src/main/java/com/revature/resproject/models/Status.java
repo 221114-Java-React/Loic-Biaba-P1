@@ -6,4 +6,7 @@ public enum Status {
     Status(int i) {
         this.i = i;
     }
+    public int getvalue() {
+        return i;
+    }
 }

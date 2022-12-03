@@ -27,7 +27,7 @@ public class UserDAO implements CrudDAO<User> {
             ps.setString(5, obj.getGivenName());
             ps.setString(6, obj.getSurname());
             ps.setBoolean(7, obj.isActive());
-            ps.setInt(8, obj.getRole().ordinal());
+            ps.setInt(8, obj.getRole().getvalue());
             ps.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -114,7 +114,7 @@ public class UserDAO implements CrudDAO<User> {
         try (Connection con = ConnectionFactory.getInstance().getConnection()) {
 
             PreparedStatement pd = con.prepareStatement("UPDATE user_t SET roleid = ? WHERE username = ?");
-            pd.setInt(1, task[1].ordinal());
+            pd.setInt(1, task[1].getvalue());
             pd.setString(2, username);
             int result = pd.executeUpdate();
 

@@ -31,9 +31,9 @@ public class UpdateHandler {
             if (userService.isDuplicateUsername(req.getUsername())) {
                 List<User> users = userService.getAllUsersByUsername(req.getUsername());
                 for (User candidate: users) {
-                    if (!candidate.getRole().equals(Role.ADMIN)) {
+                    if (!candidate.getRole().equals(Role.ADMIN) && !candidate.getRole().equals(Role.MANAGER)) {
                         updatedUser =  userService.upgradeRole(req);
-                    } else throw new InvalidUserException("Admin cannot be upgraded");
+                    } else throw new InvalidUserException("Admin or Manager cannot be upgraded");
                 }
              //   updatedUser =  userService.upgradeRole(req);
             } else throw new InvalidUserException("User doesn't exist");

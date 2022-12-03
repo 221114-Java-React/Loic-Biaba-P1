@@ -38,7 +38,7 @@ import java.util.List;
         NewUserRequest req = mapper.readValue(ctx.req.getInputStream(), NewUserRequest.class);
 
             try {
-                String token = ctx.req.getHeader("authorization");
+                String token = ctx.req.getHeader("Authorization");
                 if (token == null || token.isEmpty()) throw new InvalidAuthException("You are not signed in");
                 //  logger.info(token);
                 Principal principal = tokenService.extractRequesterDetails(token);
@@ -72,7 +72,7 @@ import java.util.List;
 
     public void getAllUsers(Context ctx) {
        try {
-           String token = ctx.req.getHeader("authorization");
+           String token = ctx.req.getHeader("Authorization");
            if (token == null || token.isEmpty()) throw new InvalidAuthException("You are not signed in");
          //  logger.info(token);
            Principal principal = tokenService.extractRequesterDetails(token);
@@ -95,7 +95,7 @@ import java.util.List;
     public void getAllUsersByUsername(Context ctx) {
 
         try {
-            String token = ctx.req.getHeader("authorization");
+            String token = ctx.req.getHeader("Authorization");
             if (token == null || token.isEmpty()) throw new InvalidAuthException("You are not signed in");
             //  logger.info(token);
             Principal principal = tokenService.extractRequesterDetails(token);
@@ -103,9 +103,12 @@ import java.util.List;
             if (!principal.getRole().equals(Role.ADMIN)) throw new InvalidAuthException("You are not authorized to do this");
 
             String username = ctx.req.getParameter("username");
+            //logger.info("Searched username = " + username);
             List<User> users = userService.getAllUsersByUsername(username);
+            if (users.isEmpty()) {throw new InvalidUserException("User not found");}
+
             ctx.json(users);
-        } catch (InvalidAuthException e) {
+        } catch (InvalidAuthException | InvalidUserException e) {
             ctx.status(401);
             ctx.json(e);
         } catch (NullPointerException e) {

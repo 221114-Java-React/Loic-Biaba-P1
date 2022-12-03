@@ -31,7 +31,7 @@ public class AuthHandler {
            Principal principal =  userService.login(req);
            String token = tokenService.generateToken(principal);
             /* set the header with the auth token */
-           ctx.res.setHeader("authorization", token);
+           ctx.res.setHeader("Authorization", token);
            ctx.json(principal);
            ctx.status(202); // ACCEPTED
          //   logger.info("Login successful...");
