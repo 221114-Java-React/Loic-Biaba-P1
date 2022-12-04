@@ -7,14 +7,17 @@ public class Principal {
         private String username;
         private Role role;
 
+        private boolean active;
+
         public Principal() {
             super();
         }
 
-        public Principal(int id, String username, Role role) {
+        public Principal(int id, String username, Role role, boolean active) {
             this.id = id;
             this.username = username;
             this.role = role;
+            this.active = active;
         }
 
         public int getId() {
@@ -41,12 +44,21 @@ public class Principal {
             this.role = role;
         }
 
-        @Override
-        public String toString() {
-            return "Principal{" +
-                    "Employee Id='" + id + '\'' +
-                    ", Username='" + username + '\'' +
-                    ", Role=" + role +
-                    '}';
+        public boolean isActive() {
+        return active;
         }
+
+        public void setActive(boolean active) {
+        this.active = active;
+        }
+
+    @Override
+    public String toString() {
+        return "Principal{" +
+                "id=" + id +
+                ", username='" + username + '\'' +
+                ", role=" + role +
+                ", active=" + active +
+                '}';
+    }
 }

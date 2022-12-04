@@ -47,6 +47,7 @@ public class ReimbursementHandler {
             Principal principal = tokenService.extractRequesterDetails(token);
             if (principal == null) throw new InvalidAuthException("Invalid token");
             if (!principal.getRole().equals(Role.DEFAULT)) throw new InvalidAuthException("You are not authorized to do this");
+            if (!principal.isActive()) throw new InvalidAuthException("You do not have permission to do this");
             Reimbursement ticket = null;
 
             if(!reimbursementService.isEmpty(req.getAmount())) {

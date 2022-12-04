@@ -34,7 +34,7 @@ public class UserService {
     public Principal login(NewLoginRequest req) throws InvalidUserException {
         User validUser = userDAO.getUserByUsernameAndPassword(req.getUsername(), req.getPassword());
         if (validUser == null) throw new InvalidAuthException("Invalid username or password");
-        return new Principal(validUser.getId(), validUser.getUsername(), validUser.getRole());
+        return new Principal(validUser.getId(), validUser.getUsername(), validUser.getRole(), validUser.isActive());
     }
     public User upgradeRole(NewUpdateUserRequest req) throws InvalidUserException {
         User updatedUser = userDAO.updateUserRole(req.getUsername());
