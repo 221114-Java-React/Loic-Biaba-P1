@@ -38,9 +38,11 @@ public class Router {
             /* users */
             path("/users", () -> {
                 get(userHandler::getAllUsers);
+                post(c -> userHandler.signup(c));
                 get("/name", userHandler::getAllUsersByUsername);
                 post("/name", updateHandler::upgradeUser);
-                post(c -> userHandler.signup(c));
+                post("/permission", updateHandler::activateUser);
+
             });
             /* auth */
             path("/auth", () -> {

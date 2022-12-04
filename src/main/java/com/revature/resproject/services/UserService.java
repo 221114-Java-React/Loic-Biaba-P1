@@ -67,4 +67,10 @@ public class UserService {
     public boolean isSamePassword(String password1, String password2) {
         return password1.equals(password2);
     }
+
+    public User activateUser(NewUpdateUserRequest req) {
+        User changedUser = userDAO.changeUserPermission(req.getUsername());
+        if (changedUser == null) throw new InvalidUserException("Unable to activate/deactivate user");
+        return changedUser;
+    }
 }

@@ -126,11 +126,9 @@ public class UserDAO implements CrudDAO<User> {
                     user = new User(rs.getInt("userid"), rs.getString("username"), rs.getString("email"), rs.getString("userpassword"),
                             rs.getString("givenname"), rs.getString("surname"), rs.getBoolean("isactive"), task[rs.getInt("roleid")]);
             }
-
         } catch (SQLException e) {
             e.printStackTrace();
         }
-
         return user;
     }
     public User getUserByUsernameAndPassword(String username, String password) {
@@ -171,5 +169,40 @@ public class UserDAO implements CrudDAO<User> {
             e.printStackTrace();
         }
         return users;
+    }
+
+    public User changeUserPermission(String username) {
+        User user = null;
+        Role task[] = Role.values();
+        boolean permission = true;
+        try (Connection con = ConnectionFactory.getInstance().getConnection()) {
+            PreparedStatement pq = con.prepareStatement("SELECT (isactive) FROM user_t WHERE username = ?");
+            pq.setString(1, username);
+            ResultSet rd = pq.executeQuery();
+            if (rd.next()) {
+                if(rd.getBoolean("isactive")) {
+                    permission = false;
+                } else {
+                    permission = true;
+                }
+            }
+
+            PreparedStatement pd = con.prepareStatement("UPDATE user_t SET isactive = ? WHERE username = ?");
+            pd.setBoolean(1, permission);
+            pd.setString(2, username);
+            pd.executeUpdate();
+
+            PreparedStatement ps = con.prepareStatement("SELECT * FROM user_t WHERE username = ?");
+            ps.setString(1, username);
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                user = new User(rs.getInt("userid"), rs.getString("username"), rs.getString("email"), rs.getString("userpassword"),
+                        rs.getString("givenname"), rs.getString("surname"), rs.getBoolean("isactive"), task[rs.getInt("roleid")]);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return user;
     }
 }
