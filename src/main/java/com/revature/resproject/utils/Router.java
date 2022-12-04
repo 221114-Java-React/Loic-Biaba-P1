@@ -52,8 +52,8 @@ public class Router {
                 post(reimbursementHandler::register);
                 get("/status", reimbursementHandler::getAllTicketsByStatus);
                 post("/status", reimbursementHandler::processTicket);
+                post("/change", reimbursementHandler::updateTicket);
         });
-
       });
     }
 }

@@ -146,14 +146,30 @@ public class ReimbursementHandler {
     public void updateTicket(Context ctx) throws IOException {
         UpdateTicketRequest req = mapper.readValue(ctx.req.getInputStream(), UpdateTicketRequest.class);
         try {
-            Reimbursement processedTicket = null;
-            if (reimbursementService.isDuplicateId(req.getId())) {
-                List<Reimbursement> tickets = reimbursementService.getAllTicketbyId(req.getId());
-                for (Reimbursement ticket : tickets) {
-                  //  processedTicket = reimbursementService.processTicket(req);
-                }
-            }
-        } catch (InvalidReimbException e) {
+            String token = ctx.req.getHeader("Authorization");
+            if (token == null || token.isEmpty()) throw new InvalidAuthException("You are not signed in");
+            //  logger.info(token);
+            Principal principal = tokenService.extractRequesterDetails(token);
+            if (principal == null) throw new InvalidAuthException("Invalid token");
+            if (!principal.getRole().equals(Role.DEFAULT)) throw new InvalidAuthException("You are not authorized to do this");
+
+            Reimbursement updatedTicket = null;
+            if (reimbursementService.isDuplicateId(Integer.parseInt(req.getId()))) {
+                if(!reimbursementService.isEmpty(req.getAmount())) {
+                    if(!reimbursementService.isEmpty(req.getDescription())) {
+                        if(!reimbursementService.isEmpty(req.getId())) {
+                            reimbursementService.isNumeric(req.getAmount());
+                            List<Reimbursement> tickets = reimbursementService.getAllTicketbyId(Integer.parseInt(req.getId()));
+                            for (Reimbursement candidate: tickets) {
+                                if(candidate.getStatus() == Status.APPROVED || candidate.getStatus() == Status.DENIED) throw new InvalidReimbException("Ticket has already been resolved. Resolved ticket cannot be updated");
+                            }
+                            updatedTicket = reimbursementService.updateTicket(req);
+                        } else throw new InvalidReimbException("Please enter a ticket ID");
+                    } else throw new InvalidReimbException("Please enter a description");
+                } else throw new InvalidReimbException("Please enter an amount");
+            } else throw new InvalidReimbException("Ticket doesn't exist");
+
+        } catch (InvalidReimbException | InvalidAuthException e) {
             ctx.status(403); // FORBIDDEN
             ctx.json(e);
         }

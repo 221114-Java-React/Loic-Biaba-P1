@@ -72,11 +72,6 @@ public class ReimbursementService {
 
     }
 
-    public Reimbursement updateTicket(UpdateTicketRequest req) {
-        Reimbursement ticket = new Reimbursement();
-        return ticket;
-    }
-
     public List<Reimbursement> getAllTicketByStatus(Status status) {
 
         return reimbDAO.getAllTicketsbyStatus(status);
@@ -110,5 +105,11 @@ public class ReimbursementService {
         Reimbursement processedTicket = reimbDAO.processedTicket(ticket_id, status, id);
         if (processedTicket == null) throw new InvalidReimbException("Unable to process ticket");
         return processedTicket;
+    }
+
+    public Reimbursement updateTicket(UpdateTicketRequest req) {
+        Reimbursement updatedTicket = reimbDAO.updateTicket(req);
+        if (updatedTicket == null) throw new InvalidReimbException("Unable to update ticket");
+        return updatedTicket;
     }
 }

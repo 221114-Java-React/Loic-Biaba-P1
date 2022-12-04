@@ -1,5 +1,6 @@
 package com.revature.resproject.daos;
 
+import com.revature.resproject.dtos.requests.UpdateTicketRequest;
 import com.revature.resproject.models.*;
 import com.revature.resproject.utils.ConnectionFactory;
 
@@ -171,5 +172,35 @@ public class ReimbursementDAO implements CrudDAO<Reimbursement> {
             e.printStackTrace();
         }
         return tickets;
+    }
+
+    public Reimbursement updateTicket(UpdateTicketRequest req) {
+        Reimbursement ticket = null;
+        Status statuses[] = Status.values();
+        Rtype rtype[] = Rtype.values();
+
+        try (Connection con = ConnectionFactory.getInstance().getConnection()) {
+            PreparedStatement pd = con.prepareStatement("UPDATE reimbursement_t SET amount = ?, description = ?, typeid = ?, submitted = ? WHERE reimbid = ?");
+            pd.setDouble(1, Math.round(Double.parseDouble(req.getAmount()) * 100.0) / 100.0);
+            pd.setString(2, req.getDescription());
+            pd.setInt(3, req.getType().getvalue());
+            pd.setTimestamp(4, Timestamp.valueOf(LocalDateTime.now()));
+            pd.setInt(5, Integer.parseInt(req.getId()));
+
+            int result = pd.executeUpdate();
+
+            PreparedStatement ps = con.prepareStatement("SELECT * FROM reimbursement_t WHERE reimbid = ?");
+            ps.setInt(1, Integer.parseInt(req.getId()));
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                ticket = new Reimbursement(rs.getInt("reimbid"), rs.getDouble("amount"), rs.getTimestamp("submitted").toLocalDateTime(), rs.getTimestamp("resolved").toLocalDateTime(),
+                        rs.getString("description"), rs.getBytes("receipt").toString(), rs.getInt("paymentid"), rs.getInt("authorid"), rs.getInt("resolverid"), statuses[rs.getInt("statusid")], rtype[rs.getInt("typeid")]);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return ticket;
     }
 }
