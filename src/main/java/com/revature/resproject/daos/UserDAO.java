@@ -116,7 +116,7 @@ public class UserDAO implements CrudDAO<User> {
             PreparedStatement pd = con.prepareStatement("UPDATE user_t SET roleid = ? WHERE username = ?");
             pd.setInt(1, task[1].getvalue());
             pd.setString(2, username);
-            int result = pd.executeUpdate();
+            pd.executeUpdate();
 
             PreparedStatement ps = con.prepareStatement("SELECT * FROM user_t WHERE username = ?");
             ps.setString(1, username);

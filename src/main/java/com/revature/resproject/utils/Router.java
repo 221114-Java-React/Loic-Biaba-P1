@@ -51,6 +51,7 @@ public class Router {
                 get(reimbursementHandler::getAllTickets);
                 post(reimbursementHandler::register);
                 get("/status", reimbursementHandler::getAllTicketsByStatus);
+                post("/status", reimbursementHandler::processTicket);
         });
 
       });

@@ -2,6 +2,8 @@ package com.revature.resproject.handlers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.revature.resproject.dtos.requests.NewReimbursementRequest;
+import com.revature.resproject.dtos.requests.NewUpdateUserRequest;
+import com.revature.resproject.dtos.requests.ProcessTicketRequest;
 import com.revature.resproject.dtos.requests.UpdateTicketRequest;
 import com.revature.resproject.dtos.responses.Principal;
 import com.revature.resproject.models.Reimbursement;
@@ -13,11 +15,13 @@ import com.revature.resproject.services.TokenService;
 import com.revature.resproject.utils.custom_exceptions.InvalidAuthException;
 import com.revature.resproject.utils.custom_exceptions.InvalidReimbException;
 
+import com.revature.resproject.utils.custom_exceptions.InvalidUserException;
 import io.javalin.http.Context;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.List;
 
 public class ReimbursementHandler {
@@ -42,7 +46,7 @@ public class ReimbursementHandler {
             //  logger.info(token);
             Principal principal = tokenService.extractRequesterDetails(token);
             if (principal == null) throw new InvalidAuthException("Invalid token");
-
+            if (!principal.getRole().equals(Role.DEFAULT)) throw new InvalidAuthException("You are not authorized to do this");
             Reimbursement ticket = null;
 
             if(!reimbursementService.isEmpty(req.getAmount())) {
@@ -107,15 +111,46 @@ public class ReimbursementHandler {
         }
     }
 
-
     public void processTicket(Context ctx) throws IOException {
+        ProcessTicketRequest req = mapper.readValue(ctx.req.getInputStream(), ProcessTicketRequest.class);
+
+        try {
+            String token = ctx.req.getHeader("Authorization");
+            if (token == null || token.isEmpty()) throw new InvalidAuthException("You are not signed in");
+            Principal principal = tokenService.extractRequesterDetails(token);
+            if (principal == null) throw new InvalidAuthException("Invalid token. Use a valid one");
+            if (!principal.getRole().equals(Role.MANAGER)) throw new InvalidAuthException("You are not authorized to do this");
+
+            Reimbursement processedTicket = null;
+            if (reimbursementService.isDuplicateId(req.getTicket_id())) {
+                Status status = reimbursementService.checkStatus(req.getStatus());
+                List<Reimbursement> tickets = reimbursementService.getAllTicketbyId(req.getTicket_id());
+                for (Reimbursement candidate: tickets) {
+                    if(candidate.getAuthorId() == principal.getId()) throw new InvalidReimbException("A manager cannot resolve his own ticket");
+                    if(candidate.getStatus() == Status.APPROVED || candidate.getStatus() == Status.DENIED) throw new InvalidReimbException("Ticket has already been resolved");
+                }
+                    processedTicket = reimbursementService.processStatus(req.getTicket_id(), status, principal.getId());
+
+            } else throw new InvalidReimbException("Ticket doesn't exist");
+            ctx.json(processedTicket);
+            ctx.status(202); // ACCEPTED
+        } catch (InvalidReimbException | InvalidAuthException e) {
+            ctx.status(403); // FORBIDDEN
+            ctx.json(e);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+
+    public void updateTicket(Context ctx) throws IOException {
         UpdateTicketRequest req = mapper.readValue(ctx.req.getInputStream(), UpdateTicketRequest.class);
         try {
             Reimbursement processedTicket = null;
             if (reimbursementService.isDuplicateId(req.getId())) {
                 List<Reimbursement> tickets = reimbursementService.getAllTicketbyId(req.getId());
                 for (Reimbursement ticket : tickets) {
-                    processedTicket = reimbursementService.processTicket(req);
+                  //  processedTicket = reimbursementService.processTicket(req);
                 }
             }
         } catch (InvalidReimbException e) {

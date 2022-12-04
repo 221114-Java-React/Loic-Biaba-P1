@@ -8,13 +8,13 @@ import com.revature.resproject.models.*;
 import com.revature.resproject.utils.Sequence;
 
 import java.security.SecureRandom;
+import java.sql.SQLException;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
 import com.revature.resproject.utils.custom_exceptions.InvalidReimbException;
+import com.revature.resproject.utils.custom_exceptions.InvalidUserException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,10 +50,8 @@ public class ReimbursementService {
         try {
              createdTicket = new Reimbursement(Sequence.nextIdValue(), Double.parseDouble(req.getAmount()), LocalDateTime.now(), LocalDateTime.of(2000, 02, 20, 00, 02), req.getDescription(),
                      "", 1 + rand.nextInt(200), principal.getId(), 0, Status.PENDING, req.getType());
-            logger.info(" " + createdTicket);
              reimbDAO.save(createdTicket);
          } catch (RuntimeException e) {
-            logger.info("Problem with image");
              e.printStackTrace();
          }
         return createdTicket;
@@ -65,15 +63,16 @@ public class ReimbursementService {
     }
 
     public boolean isDuplicateId(int id) {
-        return false;
+            List<Integer> ticketids = reimbDAO.findAllTicketId();
+        return ticketids.contains(id);
     }
 
     public List<Reimbursement> getAllTicketbyId(int id) {
-        List<Reimbursement> tickets = new ArrayList<>();
-        return tickets;
+        return reimbDAO.getAllTicketByID(id);
+
     }
 
-    public Reimbursement processTicket(UpdateTicketRequest req) {
+    public Reimbursement updateTicket(UpdateTicketRequest req) {
         Reimbursement ticket = new Reimbursement();
         return ticket;
     }
@@ -94,5 +93,22 @@ public class ReimbursementService {
             default:
                 throw new InvalidReimbException("Invalid Status. Please input a valid status");
         }
+    }
+    public Status checkStatus(String status) {
+        String string = status.toLowerCase();
+        switch (string) {
+            case "approve":
+                return Status.APPROVED;
+            case "deny":
+                return Status.DENIED;
+            default:
+                throw new InvalidReimbException("Invalid action. Please input approve or deny");
+        }
+    }
+
+    public Reimbursement processStatus(int ticket_id, Status status, int id) throws SQLException {
+        Reimbursement processedTicket = reimbDAO.processedTicket(ticket_id, status, id);
+        if (processedTicket == null) throw new InvalidReimbException("Unable to process ticket");
+        return processedTicket;
     }
 }
