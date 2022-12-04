@@ -22,6 +22,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class ReimbursementHandler {
@@ -73,13 +74,22 @@ public class ReimbursementHandler {
             if (token == null || token.isEmpty()) throw new InvalidAuthException("You are not signed in");
             Principal principal = tokenService.extractRequesterDetails(token);
             if (principal == null) throw new InvalidAuthException("Invalid token");
-            if (!principal.getRole().equals(Role.ADMIN) && !principal.getRole().equals(Role.MANAGER)) throw new InvalidAuthException("You are not authorized to do this");
-
-            // logger.info("Principal: " + principal.toString());
-            // logger.info("Principal: " + tokenService.extractDetails(token));
+            if (principal.getRole().equals(Role.ADMIN)) throw new InvalidAuthException("You are not authorized to do this");
 
             List<Reimbursement> tickets = reimbursementService.getAllTickets();
-            ctx.json(tickets);
+            if (tickets.isEmpty()) {ctx.result("No ticket has been found!"); return;}
+
+            if (!principal.getRole().equals(Role.MANAGER)) {
+                List<Reimbursement> userTickets = new ArrayList<>();
+                for (Reimbursement candidate : tickets) {
+                    if (candidate.getAuthorId() == principal.getId())
+                        userTickets.add(candidate);
+                }
+                if (userTickets.isEmpty()) {ctx.result("No ticket has been found!"); return;}
+                ctx.json(userTickets);
+            }
+            else
+                ctx.json(tickets);
         } catch (InvalidAuthException e) {
             ctx.status(401);
             ctx.json(e);
@@ -94,14 +104,23 @@ public class ReimbursementHandler {
             if (token == null || token.isEmpty()) throw new InvalidAuthException("You are not signed in");
             Principal principal = tokenService.extractRequesterDetails(token);
             if (principal == null) throw new InvalidAuthException("Invalid token. Use a valid one");
-            if (!principal.getRole().equals(Role.ADMIN) && !principal.getRole().equals(Role.MANAGER)) throw new InvalidAuthException("You are not authorized to do this");
+            if (principal.getRole().equals(Role.ADMIN)) throw new InvalidAuthException("You are not authorized to do this");
 
             String status = ctx.req.getParameter("ticketStatus");
             Status paramStatus = reimbursementService.showStatus(status);
             List<Reimbursement> tickets = reimbursementService.getAllTicketByStatus(paramStatus);
-
             if (tickets.isEmpty()) {ctx.result("No ticket has been found!"); return;}
 
+            if (!principal.getRole().equals(Role.MANAGER)) {
+                List<Reimbursement> userTickets = new ArrayList<>();
+                for (Reimbursement candidate : tickets) {
+                    if (candidate.getAuthorId() == principal.getId())
+                       userTickets.add(candidate);
+                }
+                if (userTickets.isEmpty()) {ctx.result("No ticket has been found!"); return;}
+                ctx.json(userTickets);
+            }
+            else
             ctx.json(tickets);
         } catch (InvalidAuthException | InvalidReimbException e) {
             ctx.status(401);

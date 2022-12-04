@@ -1,7 +1,10 @@
 package com.revature.resproject.utils.custom_exceptions;
 
 public class InvalidAuthException extends RuntimeException {
+
+    private String message;
     public InvalidAuthException() {
+        super();
     }
 
     public InvalidAuthException(String message) {
@@ -19,4 +22,6 @@ public class InvalidAuthException extends RuntimeException {
     public InvalidAuthException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
         super(message, cause, enableSuppression, writableStackTrace);
     }
+
+
 }
